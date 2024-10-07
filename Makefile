@@ -25,6 +25,14 @@ endif
 
 all: extension
 
+clean:
+	rm -f ./schemas/gschemas.compiled
+
+extension: ./schemas/gschemas.compiled
+
+./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.arcmenu.gschema.xml
+	glib-compile-schemas ./schemas/
+
 install: install-local
 
 install-local: _build
