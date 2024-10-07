@@ -30,7 +30,7 @@ clean:
 
 extension: ./schemas/gschemas.compiled
 
-./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.arcmenu.gschema.xml
+./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.display-configuration-switcher.gschema.xml
 	glib-compile-schemas ./schemas/
 
 install: install-local
