@@ -8,13 +8,13 @@ all: build install
 build:
 	rm -f $(BUNDLE_PATH); \
 	cd $(EXTENSION_DIR); \
-	gnome-extensions pack --force \
+	dbus-run-session -- gnome-extensions pack --force \
 	                      --extra-source=dbus.js/ \
 	                      --extra-source=dialog.js; \
 	mv $(EXTENSION_DIR).shell-extension.zip ../$(BUNDLE_PATH)
 
 install:
-	gnome-extensions install $(BUNDLE_PATH) --force
+	dbus-run-session -- gnome-extensions install $(BUNDLE_PATH) --force
 
 enable:
 	dbus-run-session -- gnome-extensions enable display-configuration-switcher@knokelmaat.gitlab.com.zip
