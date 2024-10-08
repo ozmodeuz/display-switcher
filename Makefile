@@ -1,5 +1,5 @@
 BUNDLE_PATH = "display-configuration-switcher@knokelmaat.gitlab.com.zip"
-EXTENSION_DIR = "display-configuration-switcher@knokelmaat.gitlab.com"
+EXTENSION_DIR = "$(HOME)/.local/share/gnome-shell/extensions/display-configuration-switcher@knokelmaat.gitlab.com"
 
 all: build install
 
