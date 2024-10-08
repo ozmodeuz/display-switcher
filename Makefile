@@ -1,67 +1,26 @@
-UUID = display-configuration-switcher@knokelmaat.gitlab.com
-SOURCES = COPYING dbus.js dialog.js extension.js prefs.js
+BUNDLE_PATH = "display-configuration-switcher@knokelmaat.gitlab.com.zip"
+EXTENSION_DIR = "display-configuration-switcher@knokelmaat.gitlab.com"
 
-ifeq ($(strip $(DESTDIR)),)
-	INSTALLTYPE = local
-	INSTALLBASE = $(HOME)/.local/share/gnome-shell/extensions
-else
-	INSTALLTYPE = system
-	SHARE_PREFIX = $(DESTDIR)/usr/share
-	INSTALLBASE = $(SHARE_PREFIX)/gnome-shell/extensions
-endif
-INSTALLNAME = display-configuration-switcher@knokelmaat.gitlab.com
+all: build install
 
-# The command line passed variable VERSION is used to set the version string
-# in the metadata and in the generated zip-file. If no VERSION is passed, the
-# version is pulled from the latest git tag and the current commit SHA1 is 
-# added to the metadata
-ifdef VERSION
-	FILESUFFIX = _v$(VERSION)
-else
-	COMMIT = $(shell git rev-parse HEAD)
-	VERSION = 
-	FILESUFFIX =
-endif
+.PHONY: build install clean
 
-all: extension
+build:
+	rm -f $(BUNDLE_PATH); \
+	cd $(EXTENSION_DIR); \
+	gnome-extensions pack --force \
+	                      --extra-source=dbus.js/ \
+	                      --extra-source=dialog.js; \
+	mv $(EXTENSION_DIR).shell-extension.zip ../$(BUNDLE_PATH)
+
+install:
+	gnome-extensions install $(BUNDLE_PATH) --force
+
+enable:
+	dbus-run-session -- gnome-extensions enable display-configuration-switcher@knokelmaat.gitlab.com.zip
+
+run:
+	dbus-run-session -- gnome-shell --nested --wayland
 
 clean:
-	rm -f ./schemas/gschemas.compiled
-
-extension: ./schemas/gschemas.compiled
-
-./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.display-configuration-switcher.gschema.xml
-	glib-compile-schemas ./schemas/
-
-install: install-local
-
-install-local: _build
-	rm -rf $(INSTALLBASE)/$(INSTALLNAME)
-	mkdir -p $(INSTALLBASE)/$(INSTALLNAME)
-	cp -r ./_build/* $(INSTALLBASE)/$(INSTALLNAME)/
-ifeq ($(INSTALLTYPE),system)
-	# system-wide settings and locale files
-	rm -r $(INSTALLBASE)/$(INSTALLNAME)/schemas $(INSTALLBASE)/$(INSTALLNAME)/locale
-
-endif
-	-rm -fR _build
-	echo done
-
-zip-file: _build
-	cd _build ; \
-	zip -qr "$(UUID)$(FILESUFFIX).zip" .
-	mv _build/$(UUID)$(FILESUFFIX).zip ./
-	-rm -fR _build
-
-_build: all
-	-rm -fR ./_build
-	mkdir -p _build
-	cp $SOURCES _build
-	mkdir -p _build/schemas
-	cp schemas/*.xml _build/schemas/
-	done;
-ifneq ($(COMMIT),)
-	sed -i '/"version": .*,/a "commit": "$(COMMIT)",'  _build/metadata.json;
-else ifneq ($(VERSION),)
-	sed -i 's/"version": .*,/"version": $(VERSION),/'  _build/metadata.json;
-endif
+	@rm -fv $(BUNDLE_PATH)
